@@ -24,6 +24,7 @@ type Config struct {
 	ProjectId   string `mapstructure:"project_id"`
 
 	DiskName             string            `mapstructure:"disk_name"`
+	DiskType             string            `mapstructure:"disk_type"`
 	DiskSizeGb           int64             `mapstructure:"disk_size"`
 	ImageName            string            `mapstructure:"image_name"`
 	ImageDescription     string            `mapstructure:"image_description"`
@@ -121,6 +122,12 @@ func NewConfig(raws ...interface{}) (*Config, []string, error) {
 	if c.Zone == "" {
 		errs = packer.MultiErrorAppend(
 			errs, errors.New("a zone must be specified"))
+	}
+
+	if c.DiskType == "" {
+		c.DiskType = fmt.Sprintf("zones/%v/diskTypes/pd-standard", c.Zone)
+	} else {
+		c.DiskType = fmt.Sprintf("zones/%v/diskTypes/%v", c.Zone, c.DiskType)
 	}
 
 	stateTimeout, err := time.ParseDuration(c.RawStateTimeout)
